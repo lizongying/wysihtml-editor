@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>编辑器</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <style>
+        #tool {
+            margin: 10px;
+        }
+
+        #editor {
+            font-size: 14px;
+            line-height: 18px;
+            border: 1px solid #dddddd;
+            padding: 10px;
+            outline: none;
+        }
+        #editor img {
+            max-width: 100%;
+        }
+
+        #image {
+            display: none;
+        }
+
+        .gray {
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <div id="tool">
+        <a id="justify" href="javascript:;">对齐</a>
+        <a id="bold" href="javascript:;">加粗</a>
+        <a id="quote" href="javascript:;">引用</a>
+        <a id="insertImage" href="javascript:;">图片</a>
+        <input id="image" type="file"/>
+    </div>
+    <div id="editor" contenteditable="true"></div>
+</div>
+<script src="js/fastclick.min.js"></script>
+<script>
+    !(function () {
+        var editor = document.getElementById('editor');
+        var bold = document.getElementById('bold');
+        var insertImage = document.getElementById('insertImage');
+        var image = document.getElementById('image');
+        var quote = document.getElementById('quote');
+        var justify = document.getElementById('justify');
+
+        editor.onfocus = function () {
+            if (this.innerHTML === '<p>写点什么...</p>') {
+                this.innerHTML = '<p><br></p>';
+            }
+            if (this.innerHTML === '') {
+                document.execCommand('formatBlock', false, 'p');
+            }
+        };
+        editor.onblur = function () {
+            if (this.innerHTML === '') {
+                this.innerHTML = '<p>写点什么...</p>';
+            }
+            if (this.innerHTML === '<p><br></p>') {
+                this.innerHTML = '<p>写点什么...</p>';
+            }
+        };
+        editor.onkeydown = function (evt) {
+            var b = document.queryCommandState('Bold');
+            if (b) {
+                bold.setAttribute('class', 'gray');
+            } else {
+                bold.setAttribute('class', '');
+            }
+            var q = document.queryCommandValue('formatBlock');
+            if (q === 'blockquote') {
+                quote.setAttribute('class', 'gray');
+            } else {
+                quote.setAttribute('class', '');
+            }
+            var l = document.queryCommandState('justifyLeft');
+            var c = document.queryCommandState('justifyCenter');
+            var r = document.queryCommandState('justifyRight');
+            if (!l && !c && !r) {
+                justify.innerHTML = '对齐';
+                justify.setAttribute('class', '');
+            }
+            if (l) {
+                justify.innerHTML = '居左';
+                justify.setAttribute('class', 'gray');
+            }
+            if (c) {
+                justify.innerHTML = '居中';
+                justify.setAttribute('class', 'gray');
+            }
+            if (r) {
+                justify.innerHTML = '居右';
+                justify.setAttribute('class', 'gray');
+            }
+
+            if (evt.keyCode == 13) {
+                if (q === 'blockquote') {
+                } else {
+                    document.execCommand('formatBlock', false, 'p');
+                }
+            }
+            if (evt.keyCode == 8) {
+                if (this.innerHTML === '<p><br></p>') {
+                    evt.keyCode = 0;
+                    return false;
+                }
+            }
+        };
+        editor.onclick = function () {
+            var b = document.queryCommandState('Bold');
+            if (b) {
+                bold.setAttribute('class', 'gray');
+            } else {
+                bold.setAttribute('class', '');
+            }
+            var q = document.queryCommandValue('formatBlock');
+            if (q === 'blockquote') {
+                quote.setAttribute('class', 'gray');
+            } else {
+                quote.setAttribute('class', '');
+            }
+            var l = document.queryCommandState('justifyLeft');
+            var c = document.queryCommandState('justifyCenter');
+            var r = document.queryCommandState('justifyRight');
+            if (!l && !c && !r) {
+                justify.innerHTML = '对齐';
+                justify.setAttribute('class', '');
+            }
+            if (l) {
+                justify.innerHTML = '居左';
+                justify.setAttribute('class', 'gray');
+            }
+            if (c) {
+                justify.innerHTML = '居中';
+                justify.setAttribute('class', 'gray');
+            }
+            if (r) {
+                justify.innerHTML = '居右';
+                justify.setAttribute('class', 'gray');
+            }
+        };
+        editor.focus();
+
+        bold.onclick = function () {
+            document.execCommand('Bold');
+            var b = document.queryCommandState('Bold');
+            if (b) {
+                bold.setAttribute('class', 'gray');
+            } else {
+                bold.setAttribute('class', '');
+            }
+        };
+        quote.onclick = function (e) {
+            var q = document.queryCommandValue('formatBlock');
+            if (q === 'blockquote') {
+                document.execCommand('formatBlock', false, 'p');
+                quote.setAttribute('class', '');
+            } else {
+                document.execCommand('formatBlock', false, 'blockquote');
+                quote.setAttribute('class', 'gray');
+            }
+        };
+        justify.onclick = function (e) {
+            var l = document.queryCommandState('justifyLeft');
+            var c = document.queryCommandState('justifyCenter');
+            var r = document.queryCommandState('justifyRight');
+            if (!l && !c && !r) {
+                document.execCommand('justifyLeft');
+                this.innerHTML = '居左';
+            }
+            if (l) {
+                document.execCommand('justifyCenter');
+                this.innerHTML = '居中';
+            }
+            if (c) {
+                document.execCommand('justifyRight');
+                this.innerHTML = '局右';
+            }
+            if (r) {
+                document.execCommand('justifyLeft');
+                this.innerHTML = '居左';
+            }
+            this.setAttribute('class', 'gray');
+        };
+        insertImage.onclick = function () {
+            editor.focus();
+            image.click();
+        };
+        image.onchange = function () {
+            var file = this.files[0];
+            if (file) {
+                document.execCommand('insertHTML', false, '<br>');
+                document.execCommand('insertImage', false, window.URL.createObjectURL(file));
+                document.execCommand('insertHTML', false, '<br>');
+            }
+        };
+    })();
+</script>
+</body>
+</html>
